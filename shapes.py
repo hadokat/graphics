@@ -5,26 +5,6 @@
 ########################################################################################
 # Base Class Shape
 
-def _prop(name):
-    '''
-    Generate Given Property Name
-    Input:
-    name: str. property name
-    Output:
-    property object. This encapsulates the getter and setter method for the 
-        private variable _name, so that it can be accessed and modified with
-        <Class>.name or <Class>.name = value
-    '''
-    @property
-    def prop(self):
-        return getattr(self, f'_{name}')
-
-    @prop.setter
-    def prop(self, v):
-        setattr(self, f'_{name}', v)
-
-    return prop
-
 class Shape:
     def __init__(self, properties, draw_str):
         '''
@@ -43,6 +23,26 @@ class Shape:
             setattr(Shape, p, _prop(p))
 
         self.draw = lambda: [draw_str[0]] + [getattr(self,p) for p in draw_str[1:]]
+
+def _prop(name):
+    '''
+    Internal: Generate Given Property Name
+    Input:
+    name: str. property name
+    Output:
+    property object. This encapsulates the getter and setter method for the 
+        private variable _name, so that it can be accessed and modified with
+        <Class>.name or <Class>.name = value
+    '''
+    @property
+    def prop(self):
+        return getattr(self, f'_{name}')
+
+    @prop.setter
+    def prop(self, v):
+        setattr(self, f'_{name}', v)
+
+    return prop
 
 ########################################################################################
 # Line Shapes
@@ -93,24 +93,6 @@ class Line(PolyLine):
 ########################################################################################
 # Elliptical Shapes
 
-class _PieSlice(Shape):
-    def __init__(self, xy, start, end, fill=None, outline=None, width=1):
-        '''
-        Pie Slice: Internal Use Class
-        Draws a portion of the ellipse in the bounding box given by xy
-        Input:
-        xy: [(x0, y0), (x1, y1)]. coordinates of upper-left and lower-right corners
-            of the bounding box containing the pie slice
-        start: int. starting angle in degrees (0 is 3 o'clock)
-        end: int. ending angle in degrees (360 is again 3 o'clock)
-        fill: tuple (int, int, int). rgb triple for fill color
-        outline: tuple (int, int, int). rgb triple for line color
-        width: int. line width
-        '''
-        Shape.__init__(self, {'xy': xy, 'start': start, 'end': end, 'fill': fill,\
-                'outline': outline, 'width': width},\
-                ['pieslice', 'xy', 'start', 'end', 'fill', 'outline', 'width'])
-
 class Ellipse(_PieSlice):
     def __init__(self, c, r, start=0, end=360, fill=None, outline=None, width=1):
         '''
@@ -156,6 +138,24 @@ class Ellipse(_PieSlice):
     def r(self, v):
         self._r = r
         self._update()
+
+class _PieSlice(Shape):
+    def __init__(self, xy, start, end, fill=None, outline=None, width=1):
+        '''
+        Pie Slice: Internal Use Class
+        Draws a portion of the ellipse in the bounding box given by xy
+        Input:
+        xy: [(x0, y0), (x1, y1)]. coordinates of upper-left and lower-right corners
+            of the bounding box containing the pie slice
+        start: int. starting angle in degrees (0 is 3 o'clock)
+        end: int. ending angle in degrees (360 is again 3 o'clock)
+        fill: tuple (int, int, int). rgb triple for fill color
+        outline: tuple (int, int, int). rgb triple for line color
+        width: int. line width
+        '''
+        Shape.__init__(self, {'xy': xy, 'start': start, 'end': end, 'fill': fill,\
+                'outline': outline, 'width': width},\
+                ['pieslice', 'xy', 'start', 'end', 'fill', 'outline', 'width'])
 
 ########################################################################################
 # Polygonal Shapes
