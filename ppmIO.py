@@ -3,35 +3,8 @@
 
 import numpy as np
 
-def _read_ppm(fname):
-    '''
-    Read a ppm file into a numpy array
-    '''
-    with open(fname, 'rb') as f:
-        mn = f.readline().decode().strip() # 'Magic Number' -- expected to be P6
-        shape = tuple(int(n) for n in f.readline().split()) + (3,) # (width, height, 3)
-        c_max = int(f.readline()) # Max Colors -- usually 255
-        r_data = np.frombuffer(f.read(),dtype=np.uint8) # Rest of file is pixels
-    try:
-        data = r_data.reshape((shape[1], shape[0], 3))
-    except ValueError:
-        # Some ppm encodings put a newline at the end of the file
-        # Take the appropriate number of bytes from the beginning to produce the image
-        data = r_data[:np.product(shape)].reshape((shape[1], shape[0], 3))
-
-    return mn, shape[:-1], c_max, data
-
-def _write_ppm(mn, shape, c_max, data, fname):
-    '''
-    Write an array to the given file location
-    '''
-    with open(fname, 'wb') as f:
-        # Write Header
-        f.write(f'{mn}\n{shape[0]} {shape[1]}\n{c_max}\n'.encode())
-        # Write array
-        f.write(data.tobytes())
-        # Trailing newline
-        f.write('\n'.encode())
+########################################################################################
+# Picture Class
 
 class Picture:
     def __init__(self, src, size=(0,0), anchor=(0,0)):
@@ -98,3 +71,37 @@ class Picture:
         '''
         self.anchor[0] += dx
         self.anchor[1] += dy
+
+########################################################################################
+# Internal Methods
+
+def _read_ppm(fname):
+    '''
+    Read a ppm file into a numpy array
+    '''
+    with open(fname, 'rb') as f:
+        mn = f.readline().decode().strip() # 'Magic Number' -- expected to be P6
+        shape = tuple(int(n) for n in f.readline().split()) + (3,) # (width, height, 3)
+        c_max = int(f.readline()) # Max Colors -- usually 255
+        r_data = np.frombuffer(f.read(),dtype=np.uint8) # Rest of file is pixels
+    try:
+        data = r_data.reshape((shape[1], shape[0], 3))
+    except ValueError:
+        # Some ppm encodings put a newline at the end of the file
+        # Take the appropriate number of bytes from the beginning to produce the image
+        data = r_data[:np.product(shape)].reshape((shape[1], shape[0], 3))
+
+    return mn, shape[:-1], c_max, data
+
+def _write_ppm(mn, shape, c_max, data, fname):
+    '''
+    Write an array to the given file location
+    '''
+    with open(fname, 'wb') as f:
+        # Write Header
+        f.write(f'{mn}\n{shape[0]} {shape[1]}\n{c_max}\n'.encode())
+        # Write array
+        f.write(data.tobytes())
+        # Trailing newline
+        f.write('\n'.encode())
+

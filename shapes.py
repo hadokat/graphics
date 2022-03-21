@@ -2,6 +2,9 @@
 # Interfaces with PIL Images
 # Skye Rhomberg
 
+########################################################################################
+# Base Class Shape
+
 def _prop(name):
     '''
     Generate Given Property Name
@@ -40,6 +43,9 @@ class Shape:
             setattr(Shape, p, _prop(p))
 
         self.draw = lambda: [draw_str[0]] + [getattr(self,p) for p in draw_str[1:]]
+
+########################################################################################
+# Line Shapes
 
 class PolyLine(Shape):
     def __init__(self, xy, color=None, width=0, joint=None):
@@ -83,6 +89,9 @@ class Line(PolyLine):
     @xy1.setter
     def xy1(self, v):
         self._xy[1] = v
+
+########################################################################################
+# Elliptical Shapes
 
 class _PieSlice(Shape):
     def __init__(self, xy, start, end, fill=None, outline=None, width=1):
@@ -147,6 +156,9 @@ class Ellipse(_PieSlice):
     def r(self, v):
         self._r = r
         self._update()
+
+########################################################################################
+# Polygonal Shapes
 
 class Polygon(Shape):
     def __init__(self, xy, fill=None, outline=None):
