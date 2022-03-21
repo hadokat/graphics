@@ -58,23 +58,6 @@ class Player(Label):
 ########################################################################################
 # Image I/O Functions
 
-def show_img(frames, duration = None):
-    '''
-    Display an image or GIF with a stop button if applicable
-    Input:
-    frames: list of PIL Image. for a still image, use a list of a single frame
-    duration: int. time in ms between frames of GIF
-    '''
-    # Create a new Tkinter object
-    _root = Tk()
-    # Create and pack the player with the frames
-    p = Player(_root, frames, duration)
-    p.pack()
-    # If this is a GIF, add a stop button
-    if isinstance(frames, list) and len(frames) > 1:
-        Button(_root, text='stop', command=lambda: p.after_cancel(p.cancel)).pack()
-    _root.mainloop()
-
 def open_img(fname):
     '''
     Open the given filename and return a PIL object to handle it
@@ -95,14 +78,22 @@ def open_img(fname):
         # Otherwise, return the image as a PIL Image
         return im.copy()
 
-def view_img(fname):
+def show_img(frames, duration = None):
     '''
-    View image from file -- supports both still and GIF
+    Display an image or GIF with a stop button if applicable
     Input:
-    fname: str. filename of image to view
+    frames: list of PIL Image. for a still image, use a list of a single frame
+    duration: int. time in ms between frames of GIF
     '''
-    # Open image to PIL, then show it in Tk window
-    show_img(open_img(fname))
+    # Create a new Tkinter object
+    _root = Tk()
+    # Create and pack the player with the frames
+    p = Player(_root, frames, duration)
+    p.pack()
+    # If this is a GIF, add a stop button
+    if isinstance(frames, list) and len(frames) > 1:
+        Button(_root, text='stop', command=lambda: p.after_cancel(p.cancel)).pack()
+    _root.mainloop()
 
 def save_img(frames, fname, duration=100):
     '''
@@ -144,3 +135,60 @@ def draw_img(width, height, shapes, bg_color=(255, 255, 255)):
         else:
             getattr(d, s.draw()[0])(*s.draw()[1:])
     return im
+
+########################################################################################
+# Top-Level I/O
+
+def view(fname):
+    '''
+    View image from file -- supports both still and GIF
+    Input:
+    fname: str. filename of image to view
+    '''
+    # Open image to PIL, then show it in Tk window
+    show_img(open_img(fname))
+
+def draw(shapes, canvas, bg_color=(255, 255, 255)):
+    '''
+    Draw and open image from given list of shapes
+    Input:
+    shapes: list of graphics objects or ppm pictures
+    canvas: (int, int). width, height of canvas
+    bg_color: tuple (int, int, int). background color as RGB triple
+    '''
+    show_img(draw_img(canvas[0], canvas[1], shapes, bg_color))
+
+def draw_seq(shape_frames, canvas, duration=100, bg_color=(255, 255, 255)):
+    '''
+    Draw and open GIF from given LIST OF LISTS of shapes
+    Input:
+    shape_frames: LIST OF LISTS of graphics objects or ppm pictures
+    canvas: (int, int). width, height of canvas
+    duration: int. delay between GIF frames
+    bg_color: tuple (int, int, int). background color as RGB triple
+    '''
+    show_img([draw_img(canvas[0], canvas[1], s, bg_color) for s in shape_frames], duration)
+
+def save(fname, shapes, canvas, bg_color=(255, 255, 255)):
+    '''
+    Save shapes to given filename
+    Input:
+    fname: str. filename to save image
+    shapes: list of graphics objects or ppm pictures
+    canvas: (int, int). width, height of canvas
+    bg_color: tuple (int, int, int). background color as RGB triple
+    '''
+    save_img(draw_img(canvas[0], canvas[1], shapes, bg_color), fname)
+
+def save(fname, shape_frames, canvas, duration, bg_color=(255, 255, 255)):
+    '''
+    Save SEQUENCE of shapes to given filename
+    Input:
+    fname: str. filename to save image
+    shape_frames: LIST OF LISTS of graphics objects or ppm pictures
+    canvas: (int, int). width, height of canvas
+    duration: int. delay between GIF frames
+    bg_color: tuple (int, int, int). background color as RGB triple
+    '''
+    save_img([draw_img(canvas[0], canvas[1], s, bg_color) for s in shape_frames],\
+            fname, duration)
